@@ -7,6 +7,7 @@ function App() {
     const [message, setMessage] = useState("");
     const [loggedIn, setLoggedIn] = useState(false);
     const [role, setRole] = useState("");
+    const [userName, setUserName] = useState("");
     const [showHome, setShowHome] = useState(false);
 
     // Registration
@@ -46,12 +47,20 @@ function App() {
     // NGO available food
     const [availableFoods, setAvailableFoods] = useState([]);
     const [showAvailableFoods, setShowAvailableFoods] = useState(false);
+    const [ngoFoodSearch, setNgoFoodSearch] = useState("");
+    // NGO notifications
+const [showNgoNotifications, setShowNgoNotifications] = useState(false);
 
     // Admin
     const [restaurants, setRestaurants] = useState([]);
+    const [restaurantSearch, setRestaurantSearch] = useState("");
     const [ngos, setNgos] = useState([]);
+    const [ngoSearch, setNgoSearch] = useState("");
+    const [foodSearch, setFoodSearch] = useState("");
+    const [requestSearch, setRequestSearch] = useState("");
     const [adminFoods, setAdminFoods] = useState([]);
     const [adminRequests, setAdminRequests] = useState([]);
+    const [showAdminNotifications, setShowAdminNotifications] = useState(false);
 
     const [showRestaurants, setShowRestaurants] = useState(false);
     const [showNgos, setShowNgos] = useState(false);
@@ -85,6 +94,7 @@ function App() {
                 localStorage.setItem("role", data.user.role);
 
                 setRole(data.user.role);
+                setUserName(data.user.name);
                 setLoggedIn(true);
                 setMessage("");
 
@@ -111,6 +121,9 @@ function App() {
         setMessage("");
         setShowHome(false);
         setShowRegister(false);
+
+        setShowNgoNotifications(false);
+setShowAdminNotifications(false);
 
         setRestaurantSection("dashboard");
         setShowFoodForm(false);
@@ -1381,90 +1394,404 @@ if (loggedIn && role === "restaurant") {
     // NGO DASHBOARD
     if (loggedIn && role === "ngo") {
         return (
+             
+<div className="ngo-dashboard">
+
+    <aside className="ngo-sidebar">
+
+        <div className="ngo-sidebar-brand">
+            <div className="ngo-sidebar-logo">
+                🍴
+            </div>
+
             <div>
+                <strong>FoodBridge</strong>
+                <span>NGO Portal</span>
+            </div>
+        </div>
 
-                <h1>FoodBridge</h1>
+        <nav className="ngo-sidebar-nav">
 
-                <h2>NGO Dashboard</h2>
+            <button
+                onClick={() => {
+                    setShowAvailableFoods(false);
+                    setShowNgoRequests(false);
+                }}
+            >
+                🏠
+                <span>Dashboard</span>
+            </button>
 
-                <p>Welcome, NGO!</p>
+            <button onClick={handleViewAvailableFood}>
+                🍱
+                <span>Available Food</span>
+            </button>
 
-                <button onClick={handleLogout}>
-                    Logout
-                </button>
+            <button onClick={handleViewNgoRequests}>
+                📋
+                <span>My Requests</span>
+            </button>
+
+        </nav>
+
+    </aside>
+
+    <main className="ngo-main-content">
+
+    <div className="ngo-header">
+    <div>
+        <h1>FoodBridge</h1>
+        <p>NGO Partner Dashboard</p>
+    </div>
+
+   <div className="ngo-header-actions">
+
+    <button
+        className="ngo-notification-button"
+        onClick={() =>
+            setShowNgoNotifications(!showNgoNotifications)
+        }
+        title="Notifications"
+    >
+        🔔
+
+        <span className="ngo-notification-count">
+            3
+        </span>
+      </button>
+
+    {showNgoNotifications && (
+        <div className="ngo-notification-dropdown">
+
+            <div className="ngo-notification-header">
+                <strong>Notifications</strong>
 
                 <button
-                    onClick={handleViewAvailableFood}
+                    onClick={() =>
+                        setShowNgoNotifications(false)
+                    }
                 >
-                    Browse Available Food
+                    ✕
                 </button>
+            </div>
 
-                <button
-                    onClick={handleViewNgoRequests}
-                >
-                    View Request History
-                </button>
+            <div className="ngo-notification-item">
+                <div className="ngo-notification-icon">
+                    🍱
+                </div>
 
-                {showAvailableFoods && (
-                    <div>
+                <div>
+                    <strong>New food available</strong>
+                    <p>New surplus food has been listed.</p>
+                    <span>Recently</span>
+                </div>
+            </div>
 
-                        <h3>Available Food</h3>
+            <div className="ngo-notification-item">
+                <div className="ngo-notification-icon">
+                    📋
+                </div>
 
-                        {availableFoods.length === 0 ? (
-                            <p>
-                                No available food listings found.
+                <div>
+                    <strong>Request update</strong>
+                    <p>Your donation request status has changed.</p>
+                    <span>Recently</span>
+                </div>
+            </div>
+
+            <div className="ngo-notification-item">
+                <div className="ngo-notification-icon">
+                    ❤️
+                </div>
+
+                <div>
+                    <strong>FoodBridge impact</strong>
+                    <p>Thank you for helping reduce food waste.</p>
+                    <span>Recently</span>
+                </div>
+            </div>
+
+        </div>
+    )}
+
+    <div className="ngo-online-status">
+    <span></span>
+    Online
+</div>
+
+<div className="ngo-profile">
+   <div className="ngo-profile-avatar">
+    {userName?.charAt(0)?.toUpperCase() || "N"}
+</div>
+
+<div className="ngo-profile-info">
+    <strong>{userName || "NGO Partner"}</strong>
+    <span>NGO</span>
+</div>
+
+    <button
+        className="ngo-logout-button"
+        onClick={handleLogout}
+    >
+        Logout
+    </button>
+</div>
+
+</div>
+
+</div>
+
+<div className="ngo-welcome-section">
+    <div>
+        <h2>Welcome back, {userName || "NGO Partner"}! 👋</h2>
+        <p>
+            Find surplus food donations and help make a difference in your community.
+        </p>
+    </div>
+
+    <div className="ngo-welcome-icon">
+        🤝
+    </div>
+</div>
+            <div className="ngo-stats">
+
+    <div
+    className="ngo-stat-card ngo-clickable"
+    onClick={handleViewAvailableFood}
+>
+    <div className="ngo-stat-icon">🍱</div>
+
+    <div>
+        <h3>Available Food</h3>
+        <p>Browse donations</p>
+    </div>
+</div>
+
+   <div
+    className="ngo-stat-card ngo-clickable"
+    onClick={handleViewNgoRequests}
+>
+    <div className="ngo-stat-icon">📋</div>
+
+    <div>
+        <h3>My Requests</h3>
+        <p>Track your requests</p>
+    </div>
+</div></div>
+               <div className="ngo-impact-section">
+
+    <div className="ngo-impact-heading">
+        <div>
+            <h3>Our Impact</h3>
+            <p>Your contribution helps reduce food waste and support communities.</p>
+        </div>
+    </div>
+
+    <div className="ngo-impact-grid">
+
+        <div className="ngo-impact-card">
+            <div className="ngo-impact-icon">
+                🍱
+            </div>
+
+            <div>
+                <strong>{availableFoods.length}</strong>
+                <span>Food Listings</span>
+            </div>
+        </div>
+
+        <div className="ngo-impact-card">
+            <div className="ngo-impact-icon">
+                📋
+            </div>
+
+            <div>
+                <strong>{ngoRequests.length}</strong>
+                <span>Requests Submitted</span>
+            </div>
+        </div>
+
+        <div className="ngo-impact-card">
+            <div className="ngo-impact-icon">
+                🤝
+            </div>
+
+            <div>
+                <strong>
+                    {
+                        ngoRequests.filter(
+                            (request) =>
+                                request.status === "approved"
+                        ).length
+                    }
+                </strong>
+                <span>Requests Approved</span>
+            </div>
+        </div>
+
+        <div className="ngo-impact-card">
+            <div className="ngo-impact-icon">
+                ❤️
+            </div>
+
+            <div>
+                <strong>
+                    {
+                        ngoRequests.filter(
+                            (request) =>
+                                request.status === "completed"
+                        ).length
+                    }
+                </strong>
+                <span>Completed Donations</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+               {showAvailableFoods && (
+    <div className="ngo-section">
+
+        <div className="ngo-section-heading">
+            <div>
+                <h3>Available Food</h3>
+                <p>Fresh surplus food available for donation</p>
+            </div>
+
+            <span className="ngo-food-count">
+                {availableFoods.length} Listings
+            </span>
+        </div>
+        <div className="ngo-food-search">
+    <span>🔍</span>
+
+    <input
+        type="text"
+        placeholder="Search food..."
+        value={ngoFoodSearch}
+        onChange={(e) =>
+            setNgoFoodSearch(e.target.value)
+        }
+    />
+</div>
+
+        {availableFoods.length === 0 ? (
+            <div className="ngo-empty-state">
+                <div className="ngo-empty-icon">🍱</div>
+                <h4>No food listings available</h4>
+                <p>Please check again later for new surplus food donations.</p>
+            </div>
+        ) : (
+            <div className="ngo-food-grid">
+
+     {availableFoods
+    .filter((food) =>
+        food.foodName
+            .toLowerCase()
+            .includes(ngoFoodSearch.toLowerCase())
+    ).length === 0 ? (
+
+    <div className="ngo-empty-state">
+        <div className="ngo-empty-icon">🔍</div>
+
+        <h4>No matching food found</h4>
+
+        <p>
+            Try searching for a different food item.
+        </p>
+    </div>
+
+) : (
+
+    availableFoods
+        .filter((food) =>
+            food.foodName
+                .toLowerCase()
+                .includes(ngoFoodSearch.toLowerCase())
+        )
+        .map((food) => (
+
+                    <div
+                        className="ngo-food-card"
+                        key={food._id}
+                    >
+
+                        <div className="ngo-food-image">
+                            <img
+                                src={
+                                    food.foodName
+                                        .toLowerCase()
+                                        .includes("rice")
+                                        ? "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80"
+                                        : "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80"
+                                }
+                                alt={food.foodName}
+                            />
+
+                            <span className="ngo-available-badge">
+                                Available
+                            </span>
+                        </div>
+
+                        <div className="ngo-food-content">
+
+                            <div className="ngo-food-title-row">
+                                <h4>{food.foodName}</h4>
+
+                                <span className="ngo-food-quantity">
+                                    {food.quantity}
+                                </span>
+                            </div>
+
+                            <p className="ngo-food-description">
+                                {food.description}
                             </p>
-                        ) : (
-                            availableFoods.map((food) => (
-                                <div key={food._id}>
 
-                                    <hr />
+                            <div className="ngo-food-details">
 
-                                    <h4>
-                                        {food.foodName}
-                                    </h4>
+                                <div>
+                                    <span>🍽️</span>
+                                    <strong>Restaurant</strong>
+                                    <p>{food.restaurant?.name || "Restaurant"}</p>
+                                </div>
 
+                                <div>
+                                    <span>📅</span>
+                                    <strong>Expiry</strong>
                                     <p>
-                                        Quantity:{" "}
-                                        {food.quantity}
-                                    </p>
-
-                                    <p>
-                                        Description:{" "}
-                                        {food.description}
-                                    </p>
-
-                                    <p>
-                                        Expiry Date:{" "}
                                         {new Date(
                                             food.expiryDate
                                         ).toLocaleDateString()}
                                     </p>
-
-                                    <p>
-                                        Restaurant:{" "}
-                                        {food.restaurant?.name}
-                                    </p>
-
-                                    <button
-                                        onClick={() =>
-                                            handleRequestFood(
-                                                food._id
-                                            )
-                                        }
-                                    >
-                                        Request Food
-                                    </button>
-
                                 </div>
-                            ))
-                        )}
+
+                            </div>
+
+                            <button
+                                className="ngo-request-food-button"
+                                onClick={() =>
+                                    handleRequestFood(food._id)
+                                }
+                            >
+                                🤝 Request Food
+                            </button>
+
+                        </div>
 
                     </div>
-                )}
+
+                            ))
+            )}
+            </div>
+        )}
+
+    </div>
+)}
 
                 {showNgoRequests && (
-                    <div>
+                    <div className="ngo-section">
 
                         <h3>My Request History</h3>
 
@@ -1474,36 +1801,53 @@ if (loggedIn && role === "restaurant") {
                             </p>
                         ) : (
                             ngoRequests.map((request) => (
-                                <div key={request._id}>
+    <div
+        key={request._id}
+        className="ngo-request-history-card"
+    >
 
-                                    <hr />
+        <div className="ngo-request-history-top">
 
-                                    <h4>
-                                        {request.food?.foodName}
-                                    </h4>
+            <h4>
+                {request.food?.foodName ||
+                    "Food listing no longer available"}
+            </h4>
 
-                                    <p>
-                                        Quantity:{" "}
-                                        {request.food?.quantity}
-                                    </p>
+            <span
+                className={`ngo-request-status status-${request.status}`}
+            >
+                {request.status}
+            </span>
 
-                                    <p>
-                                        Restaurant:{" "}
-                                        {request.restaurant?.name}
-                                    </p>
+        </div>
 
-                                    <p>
-                                        Restaurant Email:{" "}
-                                        {request.restaurant?.email}
-                                    </p>
+        <div className="ngo-request-history-info">
 
-                                    <p>
-                                        Status:{" "}
-                                        {request.status}
-                                    </p>
+            <div>
+                <span>Quantity</span>
+                <strong>
+                    {request.food?.quantity || "N/A"}
+                </strong>
+            </div>
 
-                                </div>
-                            ))
+            <div>
+                <span>Restaurant</span>
+                <strong>
+                    {request.restaurant?.name || "N/A"}
+                </strong>
+            </div>
+
+            <div>
+                <span>Restaurant Email</span>
+                <strong>
+                    {request.restaurant?.email || "N/A"}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+))
                         )}
 
                     </div>
@@ -1511,371 +1855,766 @@ if (loggedIn && role === "restaurant") {
 
                 <p>{ngoMessage}</p>
 
-            </div>
-        );
-    }
+        
+</main>
+</div>
+    );
+}
 
-    // ADMIN DASHBOARD
-    if (loggedIn && role === "admin") {
-        return (
-            <div>
+// ADMIN DASHBOARD
+if (loggedIn && role === "admin") {
+    return (
+        <div className="admin-dashboard">
 
-                <h1>FoodBridge</h1>
+            {/* TOP HEADER */}
+            <div className="admin-topbar">
 
-                <h2>Admin Dashboard</h2>
+                <div className="admin-brand">
+                    <div className="admin-brand-icon">
+                        🍴
+                    </div>
 
-                <p>Welcome, Admin!</p>
-
-                <button onClick={handleLogout}>
-                    Logout
-                </button>
-
-                <button onClick={handleViewRestaurants}>
-                    View Restaurants
-                </button>
-
-                <button onClick={handleViewNgos}>
-                    View NGOs
-                </button>
-
-                <button onClick={handleViewAdminFoods}>
-                    View Food Listings
-                </button>
-
-                <button onClick={handleViewAdminRequests}>
-                    View Donation Requests
-                </button>
-
-                {showRestaurants && (
                     <div>
+                        <h1>FoodBridge</h1>
+                        <p>Admin Control Center</p>
+                    </div>
+                </div>
 
+                <div className="admin-topbar-actions">
+
+                   <button
+    className="admin-notification-button"
+    onClick={() =>
+        setShowAdminNotifications(!showAdminNotifications)
+    }
+    title="Notifications"
+>
+    🔔
+    <span className="admin-notification-count">
+        3
+    </span>
+</button>{showAdminNotifications && (
+    <div className="admin-notification-dropdown">
+
+        <div className="admin-notification-header">
+            <strong>Notifications</strong>
+
+            <button
+                onClick={() =>
+                    setShowAdminNotifications(false)
+                }
+            >
+                ✕
+            </button>
+        </div>
+
+        <div className="admin-notification-item">
+
+            <div className="admin-notification-icon">
+                🏪
+            </div>
+
+            <div>
+                <strong>Restaurant activity</strong>
+                <p>
+                    New restaurant partners are registered.
+                </p>
+                <span>Recently</span>
+            </div>
+
+        </div>
+
+        <div className="admin-notification-item">
+
+            <div className="admin-notification-icon">
+                🤝
+            </div>
+
+            <div>
+                <strong>NGO activity</strong>
+                <p>
+                    New NGO partners have joined FoodBridge.
+                </p>
+                <span>Recently</span>
+            </div>
+
+        </div>
+
+        <div className="admin-notification-item">
+
+            <div className="admin-notification-icon">
+                📋
+            </div>
+
+            <div>
+                <strong>Donation request</strong>
+                <p>
+                    A new donation request requires monitoring.
+                </p>
+                <span>Recently</span>
+            </div>
+
+        </div>
+
+    </div>
+)}
+
+                    <div className="admin-online-status">
+                        <span></span>
+                        Online
+                    </div>
+
+                    <div className="admin-profile">
+
+                        <div className="admin-profile-avatar">
+                            A
+                        </div>
+
+                        <div className="admin-profile-info">
+                            <strong>Administrator</strong>
+                            <span>Admin</span>
+                        </div>
+
+                        <button
+                            className="admin-logout-button"
+                            onClick={handleLogout}
+                        >
+                            Logout
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {/* WELCOME SECTION */}
+            <div className="admin-welcome">
+
+                <div>
+                    <p className="admin-welcome-label">
+                        ADMINISTRATION
+                    </p>
+
+                    <h2>
+                        Welcome back, Admin! 👋
+                    </h2>
+
+                    <p>
+                        Monitor FoodBridge activities and manage
+                        restaurants, NGOs, food listings and donation
+                        requests from one place.
+                    </p>
+                </div>
+
+                <div className="admin-welcome-icon">
+                    📊
+                </div>
+
+            </div>
+
+
+            {/* PAGE TITLE */}
+            <div className="admin-page-heading">
+
+                <div>
+                    <h2>Dashboard Overview</h2>
+                    <p>
+                        Manage and monitor the FoodBridge platform.
+                    </p>
+                </div>
+
+            </div>
+
+
+            {/* STAT CARDS */}
+            <div className="admin-stats">
+
+                <div
+                    className="admin-stat-card admin-clickable"
+                    onClick={handleViewRestaurants}
+                >
+                    <div className="admin-stat-icon">
+                        🏪
+                    </div>
+
+                    <div>
                         <h3>Restaurants</h3>
+                        <strong>
+                            {restaurants.length}
+                        </strong>
+                        <p>Registered partners</p>
+                    </div>
+                </div>
 
-                        {restaurants.length === 0 ? (
+
+                <div
+                    className="admin-stat-card admin-clickable"
+                    onClick={handleViewNgos}
+                >
+                    <div className="admin-stat-icon">
+                        🤝
+                    </div>
+
+                    <div>
+                        <h3>NGOs</h3>
+                        <strong>
+                            {ngos.length}
+                        </strong>
+                        <p>Registered organizations</p>
+                    </div>
+                </div>
+
+
+                <div
+                    className="admin-stat-card admin-clickable"
+                    onClick={handleViewAdminFoods}
+                >
+                    <div className="admin-stat-icon">
+                        🍱
+                    </div>
+
+                    <div>
+                        <h3>Food Listings</h3>
+                        <strong>
+                            {adminFoods.length}
+                        </strong>
+                        <p>Surplus food listings</p>
+                    </div>
+                </div>
+
+
+                <div
+                    className="admin-stat-card admin-clickable"
+                    onClick={handleViewAdminRequests}
+                >
+                    <div className="admin-stat-icon">
+                        📋
+                    </div>
+
+                    <div>
+                        <h3>Requests</h3>
+                        <strong>
+                            {adminRequests.length}
+                        </strong>
+                        <p>Donation requests</p>
+                    </div>
+                </div>
+
+            </div>
+
+
+            {/* MANAGEMENT CARDS */}
+            <div className="admin-management-grid">
+
+                <div
+                    className="admin-management-card"
+                    onClick={handleViewRestaurants}
+                >
+                    <div className="admin-management-icon">
+                        🏪
+                    </div>
+
+                    <div className="admin-management-content">
+                        <h3>Restaurant Management</h3>
+
+                        <p>
+                            View registered restaurants and
+                            their account information.
+                        </p>
+
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewRestaurants();
+                            }}
+                        >
+                            View Restaurants →
+                        </button>
+                    </div>
+                </div>
+
+
+                <div
+                    className="admin-management-card"
+                    onClick={handleViewNgos}
+                >
+                    <div className="admin-management-icon">
+                        🤝
+                    </div>
+
+                    <div className="admin-management-content">
+                        <h3>NGO Management</h3>
+
+                        <p>
+                            View registered NGOs participating
+                            in FoodBridge.
+                        </p>
+
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewNgos();
+                            }}
+                        >
+                            View NGOs →
+                        </button>
+                    </div>
+                </div>
+
+
+                <div
+                    className="admin-management-card"
+                    onClick={handleViewAdminFoods}
+                >
+                    <div className="admin-management-icon">
+                        🍱
+                    </div>
+
+                    <div className="admin-management-content">
+                        <h3>Food Listings</h3>
+
+                        <p>
+                            Monitor surplus food listed by
+                            restaurant partners.
+                        </p>
+
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewAdminFoods();
+                            }}
+                        >
+                            View Food →
+                        </button>
+                    </div>
+                </div>
+
+
+                <div
+                    className="admin-management-card"
+                    onClick={handleViewAdminRequests}
+                >
+                    <div className="admin-management-icon">
+                        📋
+                    </div>
+
+                    <div className="admin-management-content">
+                        <h3>Donation Requests</h3>
+
+                        <p>
+                            Monitor requests between NGOs
+                            and restaurants.
+                        </p>
+
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewAdminRequests();
+                            }}
+                        >
+                            View Requests →
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+
+            {/* RESTAURANTS */}
+            {showRestaurants && (
+                <div className="admin-section">
+
+                    <div className="admin-section-heading">
+
+                        <div>
+                            <h3>Restaurants</h3>
                             <p>
-                                No restaurants found.
+                                Registered restaurant partners
                             </p>
-                        ) : (
-                            restaurants.map((restaurant) => (
+                        </div>
+
+                        <span className="admin-section-count">
+                            {restaurants.length} Restaurants
+                        </span>
+
+                    </div>
+                    <div className="admin-search-box">
+    <span>🔍</span>
+
+    <input
+        type="text"
+        placeholder="Search restaurants..."
+        value={restaurantSearch}
+        onChange={(e) =>
+            setRestaurantSearch(e.target.value)
+        }
+    />
+</div>
+
+                    {restaurants.length === 0 ? (
+                        <div className="admin-empty-state">
+                            <div>🏪</div>
+                            <h4>No restaurants found</h4>
+                        </div>
+                    ) : (
+                        <div className="admin-user-grid">
+
+                            {restaurants
+    .filter((restaurant) =>
+        restaurant.name
+            .toLowerCase()
+            .includes(restaurantSearch.toLowerCase())
+    )
+    .map((restaurant) => (
                                 <div
+                                    className="admin-user-card"
                                     key={restaurant._id}
                                 >
 
-                                    <hr />
+                                    <div className="admin-user-avatar">
+                                        {restaurant.name
+                                            ?.charAt(0)
+                                            ?.toUpperCase() || "R"}
+                                    </div>
 
-                                    <h4>
-                                        {restaurant.name}
-                                    </h4>
+                                    <div className="admin-user-content">
 
-                                    <p>
-                                        Email:{" "}
-                                        {restaurant.email}
-                                    </p>
+                                        <h4>
+                                            {restaurant.name}
+                                        </h4>
 
-                                    <p>
-                                        Role:{" "}
-                                        {restaurant.role}
-                                    </p>
+                                        <p>
+                                            📧 {restaurant.email}
+                                        </p>
 
-                                </div>
-                            ))
-                        )}
+                                        <span className="admin-role-badge restaurant-role">
+                                            Restaurant
+                                        </span>
 
-                    </div>
-                )}
-
-                {showNgos && (
-                    <div>
-
-                        <h3>NGOs</h3>
-
-                        {ngos.length === 0 ? (
-                            <p>
-                                No NGOs found.
-                            </p>
-                        ) : (
-                            ngos.map((ngo) => (
-                                <div key={ngo._id}>
-
-                                    <hr />
-
-                                    <h4>
-                                        {ngo.name}
-                                    </h4>
-
-                                    <p>
-                                        Email:{" "}
-                                        {ngo.email}
-                                    </p>
-
-                                    <p>
-                                        Role:{" "}
-                                        {ngo.role}
-                                    </p>
+                                    </div>
 
                                 </div>
-                            ))
-                        )}
-
-                    </div>
-                )}
-
-                {showAdminFoods && (
-                    <div>
-
-                        <h3>All Food Listings</h3>
-
-                        {adminFoods.length === 0 ? (
-                            <p>
-                                No food listings found.
-                            </p>
-                        ) : (
-                            adminFoods.map((food) => (
-                                <div key={food._id}>
-
-                                    <hr />
-
-                                    <h4>
-                                        {food.foodName}
-                                    </h4>
-
-                                    <p>
-                                        Quantity:{" "}
-                                        {food.quantity}
-                                    </p>
-
-                                    <p>
-                                        Restaurant:{" "}
-                                        {food.restaurant?.name}
-                                    </p>
-
-                                    <p>
-                                        Status:{" "}
-                                        {food.status}
-                                    </p>
-
-                                </div>
-                            ))
-                        )}
-
-                    </div>
-                )}
-
-                {showAdminRequests && (
-                    <div>
-
-                        <h3>All Donation Requests</h3>
-
-                        {adminRequests.length === 0 ? (
-                            <p>
-                                No donation requests found.
-                            </p>
-                        ) : (
-                            adminRequests.map((request) => (
-                                <div key={request._id}>
-
-                                    <hr />
-
-                                    <h4>
-                                        {request.food?.foodName}
-                                    </h4>
-
-                                    <p>
-                                        Quantity:{" "}
-                                        {request.food?.quantity}
-                                    </p>
-
-                                    <p>
-                                        NGO:{" "}
-                                        {request.ngo?.name}
-                                    </p>
-
-                                    <p>
-                                        Restaurant:{" "}
-                                        {request.restaurant?.name}
-                                    </p>
-
-                                    <p>
-                                        Status:{" "}
-                                        {request.status}
-                                    </p>
-
-                                </div>
-                            ))
-                        )}
-
-                    </div>
-                )}
-
-                <p>{adminMessage}</p>
-
-            </div>
-        );
-    }
-
-    // HOME PAGE
-    if (showHome) {
-        return (
-            <div className="home-page">
-
-                <nav className="navbar">
-
-                    <div className="navbar-logo">
-                        🍴 FoodBridge
-                    </div>
-
-                    <div className="navbar-links">
-
-                        <button
-                            onClick={() =>
-                                setShowHome(false)
-                            }
-                        >
-                            Login
-                        </button>
-
-                        <button
-                            onClick={() => {
-                                setShowHome(false);
-                                setShowRegister(true);
-                            }}
-                        >
-                            Register
-                        </button>
-
-                    </div>
-
-                </nav>
-
-                <section className="hero-section">
-
-                    <div className="hero-content">
-
-                        <p className="hero-small-title">
-                            FOOD • COMMUNITY • CHANGE
-                        </p>
-
-                        <h1>
-                            Share Food.
-                            <br />
-                            Reduce Waste.
-                            <br />
-                            <span>
-                                Make a Difference.
-                            </span>
-                        </h1>
-
-                        <p>
-                            FoodBridge connects restaurants
-                            with NGOs to help surplus food
-                            reach people who need it.
-                        </p>
-
-                        <button
-                            className="hero-button"
-                            onClick={() => {
-                                setShowHome(false);
-                                setShowRegister(true);
-                            }}
-                        >
-                            Get Started
-                        </button>
-
-                    </div>
-
-                    <div className="hero-image">
-
-                        <img
-                            src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=700&q=80"
-                            alt="Fresh food"
-                            className="hero-food-image"
-                        />
-
-                    </div>
-
-                </section>
-
-                <section className="features-section">
-
-                    <h2>
-                        How FoodBridge Works
-                    </h2>
-
-                    <p className="section-subtitle">
-                        A simple way to connect surplus food
-                        with NGOs.
-                    </p>
-
-                    <div className="feature-cards">
-
-                        <div className="feature-card">
-
-                            <div className="feature-icon">
-                                🍽️
-                            </div>
-
-                            <h3>
-                                Restaurants
-                            </h3>
-
-                            <p>
-                                List surplus food that can
-                                be donated instead of going
-                                to waste.
-                            </p>
+                            ))}
 
                         </div>
+                    )}
 
-                        <div className="feature-card">
+                </div>
+            )}
 
-                            <div className="feature-icon">
-                                🤝
-                            </div>
 
-                            <h3>
-                                NGOs
-                            </h3>
+            {/* NGOs */}
+            {showNgos && (
+                <div className="admin-section">
 
+                    <div className="admin-section-heading">
+
+                        <div>
+                            <h3>NGOs</h3>
                             <p>
-                                Browse available food and
-                                send donation requests.
+                                Registered NGO partners
                             </p>
-
                         </div>
 
-                        <div className="feature-card">
-
-                            <div className="feature-icon">
-                                ❤️
-                            </div>
-
-                            <h3>
-                                Make an Impact
-                            </h3>
-
-                            <p>
-                                Help reduce food waste and
-                                support communities in need.
-                            </p>
-
-                        </div>
+                        <span className="admin-section-count">
+                            {ngos.length} NGOs
+                        </span>
 
                     </div>
+                    <div className="admin-search-box">
+    <span>🔍</span>
 
-                </section>
+    <input
+        type="text"
+        placeholder="Search NGOs..."
+        value={ngoSearch}
+        onChange={(e) =>
+            setNgoSearch(e.target.value)
+        }
+    />
+</div>
 
-                <footer className="home-footer">
+                    {ngos.length === 0 ? (
+                        <div className="admin-empty-state">
+                            <div>🤝</div>
+                            <h4>No NGOs found</h4>
+                        </div>
+                    ) : (
+                        <div className="admin-user-grid">
 
-                    <p>
-                        © 2026 FoodBridge | Connecting Food
-                        with Those in Need
-                    </p>
+                            {ngos
+    .filter((ngo) =>
+        ngo.name
+            .toLowerCase()
+            .includes(ngoSearch.toLowerCase())
+    )
+    .map((ngo) => (
+                                <div
+                                    className="admin-user-card"
+                                    key={ngo._id}
+                                >
 
-                </footer>
+                                    <div className="admin-user-avatar">
+                                        {ngo.name
+                                            ?.charAt(0)
+                                            ?.toUpperCase() || "N"}
+                                    </div>
 
-            </div>
-        );
-    }
+                                    <div className="admin-user-content">
+
+                                        <h4>
+                                            {ngo.name}
+                                        </h4>
+
+                                        <p>
+                                            📧 {ngo.email}
+                                        </p>
+
+                                        <span className="admin-role-badge ngo-role">
+                                            NGO
+                                        </span>
+
+                                    </div>
+
+                                </div>
+                            ))}
+
+                        </div>
+                    )}
+
+                </div>
+            )}
+
+
+            {/* FOOD LISTINGS */}
+            {showAdminFoods && (
+                <div className="admin-section">
+
+                    <div className="admin-section-heading">
+
+                        <div>
+                            <h3>Food Listings</h3>
+                            <p>
+                                Monitor all surplus food listings
+                            </p>
+                        </div>
+
+                        <span className="admin-section-count">
+                            {adminFoods.length} Listings
+                        </span>
+
+                    </div>
+                    <div className="admin-search-box">
+    <span>🔍</span>
+
+    <input
+        type="text"
+        placeholder="Search food..."
+        value={foodSearch}
+        onChange={(e) =>
+            setFoodSearch(e.target.value)
+        }
+    />
+</div>
+
+                    {adminFoods.length === 0 ? (
+                        <div className="admin-empty-state">
+                            <div>🍱</div>
+                            <h4>No food listings found</h4>
+                        </div>
+                    ) : (
+                        <div className="admin-food-grid">
+
+                           {adminFoods
+    .filter((food) =>
+        food.foodName
+            .toLowerCase()
+            .includes(foodSearch.toLowerCase())
+    )
+    .map((food) => (
+                                <div
+                                    className="admin-food-card"
+                                    key={food._id}
+                                >
+
+                                    <div className="admin-food-image">
+                                        <img
+                                            src={
+                                                food.foodName
+                                                    ?.toLowerCase()
+                                                    .includes("rice")
+                                                    ? "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80"
+                                                    : "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80"
+                                            }
+                                            alt={food.foodName}
+                                        />
+
+                                        <span className="admin-food-status">
+                                            {food.status}
+                                        </span>
+                                    </div>
+
+                                    <div className="admin-food-content">
+
+                                        <div className="admin-food-title-row">
+
+                                            <h4>
+                                                {food.foodName}
+                                            </h4>
+
+                                            <span>
+                                                {food.quantity}
+                                            </span>
+
+                                        </div>
+
+                                        <p>
+                                            {food.description}
+                                        </p>
+
+                                        <div className="admin-food-info">
+
+                                            <div>
+                                                <span>Restaurant</span>
+                                                <strong>
+                                                    {food.restaurant?.name ||
+                                                        "Restaurant"}
+                                                </strong>
+                                            </div>
+
+                                            <div>
+                                                <span>Expiry</span>
+                                                <strong>
+                                                    {new Date(
+                                                        food.expiryDate
+                                                    ).toLocaleDateString()}
+                                                </strong>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            ))}
+
+                        </div>
+                    )}
+
+                </div>
+            )}
+
+
+            {/* DONATION REQUESTS */}
+            {showAdminRequests && (
+                <div className="admin-section">
+
+                    <div className="admin-section-heading">
+
+                        <div>
+                            <h3>Donation Requests</h3>
+                            <p>
+                                Monitor all NGO food requests
+                            </p>
+                        </div>
+
+                        <span className="admin-section-count">
+                            {adminRequests.length} Requests
+                        </span>
+
+                    </div>
+                    <div className="admin-search-box">
+    <span>🔍</span>
+
+    <input
+        type="text"
+        placeholder="Search donation requests..."
+        value={requestSearch}
+        onChange={(e) =>
+            setRequestSearch(e.target.value)
+        }
+    />
+</div>
+
+                    {adminRequests.length === 0 ? (
+                        <div className="admin-empty-state">
+                            <div>📋</div>
+                            <h4>No donation requests found</h4>
+                        </div>
+                    ) : (
+                        <div className="admin-request-list">
+
+                            {adminRequests
+    .filter((request) =>
+        request.food?.foodName
+            ?.toLowerCase()
+            .includes(requestSearch.toLowerCase())
+    )
+    .map((request) => (
+                                <div
+                                    className="admin-request-card"
+                                    key={request._id}
+                                >
+
+                                    <div className="admin-request-icon">
+                                        📋
+                                    </div>
+
+                                    <div className="admin-request-main">
+
+                                        <h4>
+                                            {request.food?.foodName ||
+                                                "Food listing unavailable"}
+                                        </h4>
+
+                                        <p>
+                                            NGO:{" "}
+                                            <strong>
+                                                {request.ngo?.name ||
+                                                    "N/A"}
+                                            </strong>
+                                        </p>
+
+                                        <p>
+                                            Restaurant:{" "}
+                                            <strong>
+                                                {request.restaurant?.name ||
+                                                    "N/A"}
+                                            </strong>
+                                        </p>
+
+                                    </div>
+
+                                    <div className="admin-request-meta">
+
+                                        <span
+                                            className={`admin-request-status status-${request.status}`}
+                                        >
+                                            {request.status}
+                                        </span>
+
+                                        <span>
+                                            Quantity:{" "}
+                                            {request.food?.quantity ||
+                                                "N/A"}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+                            ))}
+
+                        </div>
+                    )}
+
+                </div>
+            )}
+
+        </div>
+    );
+}
 
     // REGISTER PAGE
     if (showRegister) {

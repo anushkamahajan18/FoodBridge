@@ -5534,3 +5534,225 @@ body:has(.restaurant-dashboard) {
         padding: 0 14px 25px;
     }
 }
+/* Restaurant Notification Dropdown */
+
+.restaurant-notification-dropdown {
+    position: absolute;
+    top: 70px;
+    right: 90px;
+    width: 340px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 12px 35px rgba(45, 35, 64, 0.18);
+    border: 1px solid #eee8ff;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.restaurant-notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid #eee8ff;
+}
+
+.restaurant-notification-header strong {
+    font-size: 16px;
+    color: #2d2340;
+}
+
+.restaurant-notification-header button {
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    cursor: pointer;
+    color: #777;
+}
+
+.restaurant-notification-empty {
+    padding: 30px 20px;
+    text-align: center;
+    color: #777;
+}
+
+.restaurant-notification-empty div {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.restaurant-notification-empty p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.restaurant-notification-item {
+    display: flex;
+    gap: 12px;
+    padding: 16px 18px;
+    border-bottom: 1px solid #f1eef8;
+}
+
+.restaurant-notification-item:last-child {
+    border-bottom: none;
+}
+
+.restaurant-notification-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: #f0eaff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 18px;
+}
+
+.restaurant-notification-item strong {
+    display: block;
+    font-size: 14px;
+    color: #2d2340;
+    margin-bottom: 4px;
+}
+
+.restaurant-notification-item p {
+    margin: 0 0 5px;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.restaurant-notification-item span {
+    font-size: 12px;
+    color: #7b5cff;
+    font-weight: 600;
+}
+
+/* ================================
+   PICKUP SCHEDULING
+================================ */
+
+.pickup-scheduling-form {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 18px;
+    padding: 20px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pickup-scheduling-form h4 {
+    margin: 0 0 8px;
+    color: #1e293b;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.pickup-scheduling-form label {
+    margin-top: 4px;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.pickup-scheduling-form input,
+.pickup-scheduling-form textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 11px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #0f172a;
+    font: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pickup-scheduling-form input:focus,
+.pickup-scheduling-form textarea:focus {
+    border-color: #0f9f6e;
+    box-shadow: 0 0 0 3px rgba(15, 159, 110, 0.12);
+}
+
+.pickup-scheduling-form textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.pickup-scheduling-form button {
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 9px;
+    background: #0f9f6e;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.pickup-scheduling-form button:hover {
+    background: #087f5b;
+    transform: translateY(-1px);
+}
+
+.pickup-scheduling-form p {
+    margin: 4px 0 0;
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+/* NGO pickup schedule card */
+
+.ngo-pickup-details {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 14px 0;
+    padding: 16px 18px;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-left: 4px solid #0f9f6e;
+    border-radius: 12px;
+}
+
+.ngo-pickup-details h4 {
+    margin: 0 0 12px;
+    color: #065f46;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.ngo-pickup-details p {
+    margin: 7px 0;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.ngo-pickup-details p strong {
+    color: #065f46;
+}
+
+@media (max-width: 600px) {
+    .pickup-scheduling-form {
+        padding: 15px;
+        border-radius: 11px;
+    }
+
+    .ngo-pickup-details {
+        padding: 14px;
+    }
+}

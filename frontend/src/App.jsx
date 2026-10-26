@@ -1,11 +1,43 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
 import "./App.css";
 
 function App() {
+   
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
-    const [loggedIn, setLoggedIn] = useState(false);
+   const [loggedIn, setLoggedIn] = useState(false);
+  
+
+useEffect(() => {
+    const socket = io("http://localhost:5000");
+
+    const token = sessionStorage.getItem("token");
+
+    if (token) {
+        socket.emit("join-user-room", token);
+    }
+
+    socket.on("new-donation-request", (notification) => {
+        setRestaurantNotifications((previous) => [
+            notification,
+            ...previous,
+        ]);
+    });
+
+    socket.on("donation-request-status", (notification) => {
+   
+    setNgoNotifications((previous) => [
+        notification,
+        ...previous,
+    ]);
+});
+
+    return () => {
+        socket.disconnect();
+    };
+}, [loggedIn]);
     const [role, setRole] = useState("");
     const [userName, setUserName] = useState("");
     const [showHome, setShowHome] = useState(false);
@@ -17,6 +49,10 @@ function App() {
     const [registerPassword, setRegisterPassword] = useState("");
     const [registerRole, setRegisterRole] = useState("restaurant");
     const [registerMessage, setRegisterMessage] = useState("");
+     const [registerPhone, setRegisterPhone] = useState("");
+const [registerArea, setRegisterArea] = useState("");
+const [registerCity, setRegisterCity] = useState("");
+const [registerPincode, setRegisterPincode] = useState("");
 
     // Restaurant section
     const [restaurantSection, setRestaurantSection] = useState("dashboard");
@@ -38,19 +74,30 @@ function App() {
     const [requests, setRequests] = useState([]);
     const [showRequests, setShowRequests] = useState(false);
     const [requestMessage, setRequestMessage] = useState("");
+    const [pickupForms, setPickupForms] = useState({});
+const [pickupMessage, setPickupMessage] = useState({});
 
     // NGO request history
     const [ngoRequests, setNgoRequests] = useState([]);
+    const [ngoContacts, setNgoContacts] = useState({});
     const [showNgoRequests, setShowNgoRequests] = useState(false);
     const [ngoMessage, setNgoMessage] = useState("");
+    
 
     // NGO available food
     const [availableFoods, setAvailableFoods] = useState([]);
     const [showAvailableFoods, setShowAvailableFoods] = useState(false);
     const [ngoFoodSearch, setNgoFoodSearch] = useState("");
+    const [ngoAreaFilter, setNgoAreaFilter] = useState("");
+const [ngoCityFilter, setNgoCityFilter] = useState("");
+const [ngoPincodeFilter, setNgoPincodeFilter] = useState("");
     // NGO notifications
 const [showNgoNotifications, setShowNgoNotifications] = useState(false);
 
+const [restaurantNotifications, setRestaurantNotifications] = useState([]);
+const [ngoNotifications, setNgoNotifications] = useState([]);
+
+const [showRestaurantNotifications, setShowRestaurantNotifications] = useState(false);
     // Admin
     const [restaurants, setRestaurants] = useState([]);
     const [restaurantSearch, setRestaurantSearch] = useState("");
@@ -90,8 +137,8 @@ const [showNgoNotifications, setShowNgoNotifications] = useState(false);
             const data = await response.json();
 
             if (response.ok) {
-                localStorage.setItem("token", data.token);
-                localStorage.setItem("role", data.user.role);
+                sessionStorage.setItem("token", data.token);
+sessionStorage.setItem("role", data.user.role);
 
                 setRole(data.user.role);
                 setUserName(data.user.name);
@@ -113,8 +160,8 @@ const [showNgoNotifications, setShowNgoNotifications] = useState(false);
 
     // LOGOUT
     const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("role");
+       sessionStorage .removeItem("token");
+       sessionStorage.removeItem("role");
 
         setLoggedIn(false);
         setRole("");
@@ -143,12 +190,18 @@ setShowAdminNotifications(false);
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({
-                        name: registerName,
-                        email: registerEmail,
-                        password: registerPassword,
-                        role: registerRole,
-                    }),
+                    
+body: JSON.stringify({
+    name: registerName,
+    email: registerEmail,
+    password: registerPassword,
+    role: registerRole,
+    phone: registerPhone,
+    area: registerArea,
+    city: registerCity,
+    pincode: registerPincode,
+}),
+
                 }
             );
 
@@ -174,7 +227,7 @@ setShowAdminNotifications(false);
     e.preventDefault();
 
     try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
 
         const url = editingFoodId
             ? `http://localhost:5000/api/food/${editingFoodId}`
@@ -237,7 +290,7 @@ setShowAdminNotifications(false);
     // VIEW FOOD LISTINGS
     const handleViewFoods = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = sessionStorage.getItem("token");
 
             const response = await fetch(
                 "http://localhost:5000/api/food",
@@ -277,7 +330,7 @@ const handleDeleteFood = async (foodId) => {
     }
 
     try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
 
         if (!token) {
             alert("Please login again.");
@@ -321,7 +374,7 @@ const handleDeleteFood = async (foodId) => {
     // VIEW RESTAURANT DONATION REQUESTS
     const handleViewRequests = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = sessionStorage.getItem("token");
 
             const response = await fetch(
                 "http://localhost:5000/api/donation-requests/restaurant",
@@ -356,7 +409,7 @@ const handleDeleteFood = async (foodId) => {
     // APPROVE / REJECT REQUEST
     const handleRequestStatus = async (requestId, status) => {
         try {
-            const token = localStorage.getItem("token");
+            const token = sessionStorage.getItem("token");
 
             const response = await fetch(
                 `http://localhost:5000/api/donation-requests/${requestId}/status`,
@@ -388,10 +441,60 @@ const handleDeleteFood = async (foodId) => {
         }
     };
 
+const handleSchedulePickup = async (requestId) => {
+    const pickup = pickupForms[requestId];
+
+    if (!pickup?.pickupDate || !pickup?.pickupTime) {
+        setPickupMessage((previous) => ({
+            ...previous,
+            [requestId]: "Please select a pickup date and time."
+        }));
+        return;
+    }
+
+    try {
+        const token = sessionStorage.getItem("token");
+
+        const response = await fetch(
+            `http://localhost:5000/api/donation-requests/${requestId}/schedule-pickup`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    pickupDate: pickup.pickupDate,
+                    pickupTime: pickup.pickupTime,
+                    pickupNotes: pickup.pickupNotes || "",
+                }),
+            }
+        );
+
+        const data = await response.json();
+
+        setPickupMessage((previous) => ({
+            ...previous,
+            [requestId]: response.ok
+                ? "Pickup scheduled successfully!"
+                : data.message || "Failed to schedule pickup."
+        }));
+
+        if (response.ok) {
+            await handleViewRequests();
+        }
+    } catch (error) {
+        setPickupMessage((previous) => ({
+            ...previous,
+            [requestId]: "Unable to connect to server."
+        }));
+    }
+};
+
     // NGO - VIEW AVAILABLE FOOD
     const handleViewAvailableFood = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = sessionStorage.getItem("token");
 
             const response = await fetch(
                 "http://localhost:5000/api/food",
@@ -425,7 +528,7 @@ const handleDeleteFood = async (foodId) => {
     // NGO - REQUEST FOOD
     const handleRequestFood = async (foodId) => {
         try {
-            const token = localStorage.getItem("token");
+            const token = sessionStorage.getItem("token");
 
             const response = await fetch(
                 "http://localhost:5000/api/donation-requests",
@@ -456,11 +559,42 @@ const handleDeleteFood = async (foodId) => {
             setNgoMessage("Unable to connect to server");
         }
     };
+    
+const handleGetNgoContact = async (requestId) => {
+    try {
+        const token = sessionStorage.getItem("token");
+
+        const response = await fetch(
+            `http://localhost:5000/api/donation-requests/${requestId}/contact`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.message || "Unable to fetch contact details");
+            return;
+        }
+
+        setNgoContacts((previous) => ({
+            ...previous,
+            [requestId]: data.contact,
+        }));
+    } catch (error) {
+    console.error("CONTACT API ERROR:", error);
+    alert("Contact error: " + error.message);
+}
+};
+
 
     // NGO - REQUEST HISTORY
     const handleViewNgoRequests = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = sessionStorage.getItem("token");
 
             const response = await fetch(
                 "http://localhost:5000/api/donation-requests/my-requests",
@@ -490,7 +624,7 @@ const handleDeleteFood = async (foodId) => {
     // ADMIN - RESTAURANTS
     const handleViewRestaurants = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = sessionStorage.getItem("token");
 
             const response = await fetch(
                 "http://localhost:5000/api/admin/restaurants",
@@ -521,7 +655,7 @@ const handleDeleteFood = async (foodId) => {
     // ADMIN - NGOS
     const handleViewNgos = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = sessionStorage.getItem("token");
 
             const response = await fetch(
                 "http://localhost:5000/api/admin/ngos",
@@ -552,7 +686,7 @@ const handleDeleteFood = async (foodId) => {
     // ADMIN - FOOD
     const handleViewAdminFoods = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = sessionStorage.getItem("token");
 
             const response = await fetch(
                 "http://localhost:5000/api/admin/food",
@@ -583,7 +717,7 @@ const handleDeleteFood = async (foodId) => {
     // ADMIN - DONATION REQUESTS
     const handleViewAdminRequests = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = sessionStorage.getItem("token");
 
             const response = await fetch(
                 "http://localhost:5000/api/admin/donation-requests",
@@ -629,26 +763,81 @@ if (loggedIn && role === "restaurant") {
 
                <div className="restaurant-profile">
 
-    <button
+   <button
     className="notification-button"
-    onClick={handleViewRequests}
-    title="View donation requests"
+    onClick={() =>
+        setShowRestaurantNotifications(
+            !showRestaurantNotifications
+        )
+    }
+    title="Notifications"
 >
     🔔
 
-    {requests.filter(
+    {(requests.filter(
         (request) => request.status === "pending"
-    ).length > 0 && (
+    ).length + restaurantNotifications.length) > 0 && (
         <span className="notification-count">
             {
                 requests.filter(
                     (request) => request.status === "pending"
-                ).length
+                ).length + restaurantNotifications.length
             }
         </span>
     )}
 </button>
-    <div className="online-status">
+
+{showRestaurantNotifications && (
+    <div className="restaurant-notification-dropdown">
+
+        <div className="restaurant-notification-header">
+            <strong>Notifications</strong>
+
+            <button
+                onClick={() =>
+                    setShowRestaurantNotifications(false)
+                }
+            >
+                ✕
+            </button>
+        </div>
+
+        {restaurantNotifications.length === 0 ? (
+            <div className="restaurant-notification-empty">
+                <div>🔔</div>
+                <p>No new notifications</p>
+            </div>
+        ) : (
+            restaurantNotifications.map((notification, index) => (
+                <div
+                    className="restaurant-notification-item"
+                    key={index}
+                >
+                    <div className="restaurant-notification-icon">
+                        🤝
+                    </div>
+
+                    <div>
+                        <strong>New Donation Request</strong>
+
+                        <p>
+                            {notification.message}
+                        </p>
+
+                        {notification.foodName && (
+                            <span>
+                                Food: {notification.foodName}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            ))
+        )}
+
+    </div>
+)}
+
+<div className="online-status">
         <span></span>
         Online
     </div>
@@ -709,14 +898,23 @@ if (loggedIn && role === "restaurant") {
                         Food Listings
                     </button>
 
-                    <button
-                        className="sidebar-button"
-                        onClick={handleViewRequests}
-                    >
-                        <span>📋</span>
-                        Donation Requests
-                    </button>
+   <button
+    type="button"
+    className="sidebar-button"
+    onClick={() => {
+        console.log("DONATION REQUESTS CLICKED");
 
+        setRestaurantSection("requests");
+        setShowFoodForm(false);
+        setShowFoods(false);
+        setShowRequests(true);
+
+        handleViewRequests();
+    }}
+>
+    <span>📋</span>
+    Donation Requests
+</button>
                     <div className="sidebar-divider"></div>
 
                     <button
@@ -741,9 +939,13 @@ if (loggedIn && role === "restaurant") {
                                 RESTAURANT PARTNER
                             </span>
 
-                            <h1>
-                                Good evening, Restaurant! 👋
-                            </h1>
+                            <h2>
+  {new Date().getHours() < 12
+    ? "Good Morning"
+    : new Date().getHours() < 17
+    ? "Good Afternoon"
+    : "Good Evening"}
+</h2>
 
                             <p>
                                 Manage your surplus food and help
@@ -1364,6 +1566,69 @@ if (loggedIn && role === "restaurant") {
                                                     </div>
                                                 )}
 
+{request.status === "approved" && (
+    <div className="pickup-scheduling-form">
+        <h4>📅 Schedule Pickup</h4>
+
+        <label>Pickup Date</label>
+        <input
+            type="date"
+            min={new Date().toLocaleDateString("en-CA")}
+            value={pickupForms[request._id]?.pickupDate || ""}
+            onChange={(e) =>
+                setPickupForms((previous) => ({
+                    ...previous,
+                    [request._id]: {
+                        ...previous[request._id],
+                        pickupDate: e.target.value,
+                    },
+                }))
+            }
+        />
+
+        <label>Pickup Time</label>
+        <input
+            type="time"
+            value={pickupForms[request._id]?.pickupTime || ""}
+            onChange={(e) =>
+                setPickupForms((previous) => ({
+                    ...previous,
+                    [request._id]: {
+                        ...previous[request._id],
+                        pickupTime: e.target.value,
+                    },
+                }))
+            }
+        />
+
+        <label>Pickup Notes (optional)</label>
+        <textarea
+            placeholder="Example: Collect from the rear entrance"
+            value={pickupForms[request._id]?.pickupNotes || ""}
+            onChange={(e) =>
+                setPickupForms((previous) => ({
+                    ...previous,
+                    [request._id]: {
+                        ...previous[request._id],
+                        pickupNotes: e.target.value,
+                    },
+                }))
+            }
+        />
+
+        <button
+            type="button"
+            onClick={() => handleSchedulePickup(request._id)}
+        >
+            Confirm Pickup Schedule
+        </button>
+
+        {pickupMessage[request._id] && (
+            <p>{pickupMessage[request._id]}</p>
+        )}
+    </div>
+)}
+
                                             </div>
 
                                         </div>
@@ -1422,10 +1687,15 @@ if (loggedIn && role === "restaurant") {
                 <span>Dashboard</span>
             </button>
 
-            <button onClick={handleViewAvailableFood}>
-                🍱
-                <span>Available Food</span>
-            </button>
+           <button
+    onClick={() => {
+        console.log("AVAILABLE FOOD BUTTON CLICKED");
+        handleViewAvailableFood();
+    }}
+>
+    🍱
+    <span>Available Food</span>
+</button>
 
             <button onClick={handleViewNgoRequests}>
                 📋
@@ -1461,58 +1731,50 @@ if (loggedIn && role === "restaurant") {
       </button>
 
     {showNgoNotifications && (
-        <div className="ngo-notification-dropdown">
+    <div className="ngo-notification-dropdown">
 
-            <div className="ngo-notification-header">
-                <strong>Notifications</strong>
+        <div className="ngo-notification-header">
+            <strong>Notifications</strong>
 
-                <button
-                    onClick={() =>
-                        setShowNgoNotifications(false)
-                    }
-                >
-                    ✕
-                </button>
-            </div>
-
-            <div className="ngo-notification-item">
-                <div className="ngo-notification-icon">
-                    🍱
-                </div>
-
-                <div>
-                    <strong>New food available</strong>
-                    <p>New surplus food has been listed.</p>
-                    <span>Recently</span>
-                </div>
-            </div>
-
-            <div className="ngo-notification-item">
-                <div className="ngo-notification-icon">
-                    📋
-                </div>
-
-                <div>
-                    <strong>Request update</strong>
-                    <p>Your donation request status has changed.</p>
-                    <span>Recently</span>
-                </div>
-            </div>
-
-            <div className="ngo-notification-item">
-                <div className="ngo-notification-icon">
-                    ❤️
-                </div>
-
-                <div>
-                    <strong>FoodBridge impact</strong>
-                    <p>Thank you for helping reduce food waste.</p>
-                    <span>Recently</span>
-                </div>
-            </div>
-
+            <button
+                onClick={() =>
+                    setShowNgoNotifications(false)
+                }
+            >
+                ✕
+            </button>
         </div>
-    )}
+
+        {ngoNotifications.length === 0 ? (
+            <div className="ngo-notification-empty">
+                <div>🔔</div>
+                <p>No new notifications</p>
+            </div>
+        ) : (
+            ngoNotifications.map((notification, index) => (
+                <div
+                    className="ngo-notification-item"
+                    key={index}
+                >
+                    <div className="ngo-notification-icon">
+                        📋
+                    </div>
+
+                    <div>
+                        <strong>Request Update</strong>
+
+                        <p>
+                            {notification.message}
+                        </p>
+
+                        <span>Recently</span>
+                    </div>
+                </div>
+            ))
+        )}
+
+    </div>
+)}
 
     <div className="ngo-online-status">
     <span></span>
@@ -1677,6 +1939,29 @@ if (loggedIn && role === "restaurant") {
     />
 </div>
 
+<div className="ngo-location-filters">
+    <input
+        type="text"
+        placeholder="Filter by area..."
+        value={ngoAreaFilter}
+        onChange={(e) => setNgoAreaFilter(e.target.value)}
+    />
+
+    <input
+        type="text"
+        placeholder="Filter by city..."
+        value={ngoCityFilter}
+        onChange={(e) => setNgoCityFilter(e.target.value)}
+    />
+
+    <input
+        type="text"
+        placeholder="Filter by PIN code..."
+        value={ngoPincodeFilter}
+        onChange={(e) => setNgoPincodeFilter(e.target.value)}
+    />
+</div>
+
         {availableFoods.length === 0 ? (
             <div className="ngo-empty-state">
                 <div className="ngo-empty-icon">🍱</div>
@@ -1686,12 +1971,38 @@ if (loggedIn && role === "restaurant") {
         ) : (
             <div className="ngo-food-grid">
 
-     {availableFoods
-    .filter((food) =>
-        food.foodName
+     
+{availableFoods
+    .filter((food) => {
+        const searchMatch = food.foodName
             .toLowerCase()
-            .includes(ngoFoodSearch.toLowerCase())
-    ).length === 0 ? (
+            .includes(ngoFoodSearch.toLowerCase());
+
+        const areaMatch = (
+            food.restaurant?.area || ""
+        )
+            .toLowerCase()
+            .includes(ngoAreaFilter.toLowerCase());
+
+        const cityMatch = (
+            food.restaurant?.city || ""
+        )
+            .toLowerCase()
+            .includes(ngoCityFilter.toLowerCase());
+
+        const pincodeMatch = (
+            food.restaurant?.pincode || ""
+        )
+            .includes(ngoPincodeFilter.trim());
+
+        return (
+            searchMatch &&
+            areaMatch &&
+            cityMatch &&
+            pincodeMatch
+        );
+    }).length === 0 ? (
+
 
     <div className="ngo-empty-state">
         <div className="ngo-empty-icon">🔍</div>
@@ -1705,13 +2016,39 @@ if (loggedIn && role === "restaurant") {
 
 ) : (
 
-    availableFoods
-        .filter((food) =>
-            food.foodName
-                .toLowerCase()
-                .includes(ngoFoodSearch.toLowerCase())
+   
+availableFoods
+    .filter((food) => {
+        const searchMatch = food.foodName
+            .toLowerCase()
+            .includes(ngoFoodSearch.toLowerCase());
+
+        const areaMatch = (
+            food.restaurant?.area || ""
         )
-        .map((food) => (
+            .toLowerCase()
+            .includes(ngoAreaFilter.toLowerCase());
+
+        const cityMatch = (
+            food.restaurant?.city || ""
+        )
+            .toLowerCase()
+            .includes(ngoCityFilter.toLowerCase());
+
+        const pincodeMatch = (
+            food.restaurant?.pincode || ""
+        )
+            .includes(ngoPincodeFilter.trim());
+
+        return (
+            searchMatch &&
+            areaMatch &&
+            cityMatch &&
+            pincodeMatch
+        );
+    })
+    .map((food) => (
+
 
                     <div
                         className="ngo-food-card"
@@ -1819,7 +2156,76 @@ if (loggedIn && role === "restaurant") {
                 {request.status}
             </span>
 
+{request.status === "approved" && (
+    <div className="ngo-approved-contact">
+        {!ngoContacts[request._id] ? (
+            <button
+                type="button"
+                onClick={() =>
+                    handleGetNgoContact(request._id)
+                }
+            >
+                View Restaurant Contact
+            </button>
+        ) : (
+            <div className="ngo-contact-details">
+                <p>
+                    <strong>Restaurant:</strong>{" "}
+                    {ngoContacts[request._id].name}
+                </p>
+
+                {ngoContacts[request._id].phone && (
+                    <>
+                        <a
+                            href={`tel:${ngoContacts[request._id].phone}`}
+                        >
+                            📞 Call
+                        </a>
+
+                        <a
+                            href={`https://wa.me/${ngoContacts[request._id].phone.replace(/\D/g, "")}`}
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            💬 WhatsApp
+                        </a>
+                    </>
+                )}
+
+                {ngoContacts[request._id].email && (
+                    <a
+                        href={`mailto:${ngoContacts[request._id].email}`}
+                    >
+                        ✉️ Email
+                    </a>
+                )}
+            </div>
+        )}
+    </div>
+)}
+
         </div>
+
+{request.pickupDate && request.pickupTime && (
+    <div className="ngo-pickup-details">
+        <h4>📅 Pickup Scheduled</h4>
+
+        <p>
+            <strong>Date:</strong>{" "}
+            {new Date(request.pickupDate).toLocaleDateString()}
+        </p>
+
+        <p>
+            <strong>Time:</strong> {request.pickupTime}
+        </p>
+
+        {request.pickupNotes && (
+            <p>
+                <strong>Instructions:</strong> {request.pickupNotes}
+            </p>
+        )}
+    </div>
+)}
 
         <div className="ngo-request-history-info">
 
@@ -2728,6 +3134,53 @@ if (loggedIn && role === "admin") {
                             />
 
                         </div>
+
+<div className="form-group">
+    <label>Phone Number</label>
+    <input
+        type="tel"
+        value={registerPhone}
+        onChange={(e) => setRegisterPhone(e.target.value)}
+        placeholder="Enter phone number"
+        required
+    />
+</div>
+
+<div className="form-group">
+    <label>Area / Locality</label>
+    <input
+        type="text"
+        value={registerArea}
+        onChange={(e) => setRegisterArea(e.target.value)}
+        placeholder="e.g. Baner"
+        required
+    />
+</div>
+
+<div className="form-group">
+    <label>City</label>
+    <input
+        type="text"
+        value={registerCity}
+        onChange={(e) => setRegisterCity(e.target.value)}
+        placeholder="e.g. Pune"
+        required
+    />
+</div>
+
+<div className="form-group">
+    <label>PIN Code</label>
+    <input
+        type="text"
+        inputMode="numeric"
+        maxLength={6}
+        value={registerPincode}
+        onChange={(e) => setRegisterPincode(e.target.value)}
+        placeholder="Enter 6-digit PIN code"
+        pattern="[0-9]{6}"
+        required
+    />
+</div>
 
                         <div className="form-group">
 

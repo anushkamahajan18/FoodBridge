@@ -30,7 +30,7 @@ const foodSchema = new mongoose.Schema(
 
         status: {
             type: String,
-            enum: ["available", "requested", "collected"],
+            enum: ["available", "requested", "collected", "expired"],
             default: "available"
         }
     },

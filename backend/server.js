@@ -3,6 +3,9 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
 
+const http = require("http");
+const { Server } = require("socket.io");
+
 const authRoutes = require("./routes/auth");
 const foodRoutes = require("./routes/food");
 const donationRequestRoutes = require("./routes/donationRequest");
@@ -11,6 +14,40 @@ const adminRoutes = require("./routes/admin");
 dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+    },
+});
+app.set("io", io);
+io.on("connection", (socket) => {
+    console.log("User connected to notifications:", socket.id);
+
+    socket.on("join-user-room", (token) => {
+        try {
+            const jwt = require("jsonwebtoken");
+
+            const decoded = jwt.verify(
+                token,
+                process.env.JWT_SECRET
+            );
+
+            socket.join(decoded.id);
+
+            console.log(
+                `User ${decoded.id} joined notification room`
+            );
+
+        } catch (error) {
+            console.log("Invalid notification token");
+        }
+    });
+
+    socket.on("disconnect", () => {
+        console.log("User disconnected:", socket.id);
+    });
+});
 
 app.use(express.json());
 app.use(cors());
@@ -45,7 +82,7 @@ mongoose
     .then(() => {
         console.log("MongoDB Connected");
 
-        app.listen(process.env.PORT || 5000, () => {
+       server.listen(process.env.PORT || 5000, () => {
             console.log(
                 `Server running on http://localhost:${process.env.PORT || 5000}`
             );

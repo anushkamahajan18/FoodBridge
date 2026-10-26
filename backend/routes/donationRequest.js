@@ -16,6 +16,7 @@ router.post(
     roleMiddleware("ngo"),
     async (req, res) => {
         try {
+            const io = req.app.get("io");
             const { foodId } = req.body;
 
             // Check food ID
@@ -63,6 +64,15 @@ router.post(
 
             await donationRequest.save();
 
+            // Send real-time notification to the restaurant
+            io.to(food.restaurant.toString()).emit(
+                "new-donation-request",
+                {
+                    message: "A new NGO has requested your food donation.",
+                    foodName: food.foodName
+                }
+            );
+
             // Update food status
             food.status = "requested";
             await food.save();
@@ -81,6 +91,7 @@ router.post(
     }
 );
 
+
 // ===============================
 // NGO REQUEST HISTORY
 // ===============================
@@ -90,11 +101,19 @@ router.get(
     roleMiddleware("ngo"),
     async (req, res) => {
         try {
-            const requests = await DonationRequest.find({
-                ngo: req.user.id
-            })
-                .populate("food", "foodName quantity description expiryDate")
-                .populate("restaurant", "name email");
+          
+const requests = await DonationRequest.find({
+    ngo: req.user.id
+})
+    .populate(
+        "food",
+        "foodName quantity description expiryDate"
+    )
+    .populate(
+        "restaurant",
+        "name area city pincode"
+    );
+
 
             res.status(200).json({
                 message: "Request history fetched successfully",
@@ -110,6 +129,7 @@ router.get(
     }
 );
 
+
 // ===============================
 // RESTAURANT VIEW DONATION REQUESTS
 // ===============================
@@ -122,7 +142,10 @@ router.get(
             const requests = await DonationRequest.find({
                 restaurant: req.user.id
             })
-                .populate("food", "foodName quantity description expiryDate")
+                .populate(
+                    "food",
+                    "foodName quantity description expiryDate"
+                )
                 .populate("ngo", "name email");
 
             res.status(200).json({
@@ -139,6 +162,7 @@ router.get(
     }
 );
 
+
 // ===============================
 // UPDATE DONATION REQUEST STATUS
 // ===============================
@@ -148,6 +172,7 @@ router.put(
     roleMiddleware("restaurant"),
     async (req, res) => {
         try {
+            const io = req.app.get("io");
             const { status } = req.body;
 
             // Check status
@@ -158,7 +183,9 @@ router.put(
             }
 
             // Find request
-            const request = await DonationRequest.findById(req.params.id);
+            const request = await DonationRequest.findById(
+                req.params.id
+            );
 
             if (!request) {
                 return res.status(404).json({
@@ -169,7 +196,8 @@ router.put(
             // Check that this request belongs to the logged-in restaurant
             if (request.restaurant.toString() !== req.user.id) {
                 return res.status(403).json({
-                    message: "You can only manage your own donation requests"
+                    message:
+                        "You can only manage your own donation requests"
                 });
             }
 
@@ -178,14 +206,159 @@ router.put(
 
             await request.save();
 
+            // Send real-time notification to the NGO
+            io.to(request.ngo.toString()).emit(
+                "donation-request-status",
+                {
+                    message:
+                        status === "approved"
+                            ? "Your donation request has been approved."
+                            : "Your donation request has been rejected.",
+                    status: status
+                }
+            );
+
             res.status(200).json({
-                message: "Donation request status updated successfully",
+                message:
+                    "Donation request status updated successfully",
                 request
             });
 
         } catch (error) {
             res.status(500).json({
-                message: "Failed to update donation request status",
+                message:
+                    "Failed to update donation request status",
+                error: error.message
+            });
+        }
+    }
+);
+
+router.put(
+    "/:id/schedule-pickup",
+    authMiddleware,
+    roleMiddleware("restaurant"),
+    async (req, res) => {
+        try {
+            const { pickupDate, pickupTime, pickupNotes } = req.body;
+
+            if (!pickupDate || !pickupTime) {
+                return res.status(400).json({
+                    message: "Pickup date and time are required"
+                });
+            }
+
+            const date = new Date(pickupDate);
+
+            if (Number.isNaN(date.getTime())) {
+                return res.status(400).json({
+                    message: "Invalid pickup date"
+                });
+            }
+
+            if (date < new Date()) {
+                return res.status(400).json({
+                    message: "Pickup date cannot be in the past"
+                });
+            }
+
+            const request = await DonationRequest.findById(req.params.id);
+
+            if (!request) {
+                return res.status(404).json({
+                    message: "Donation request not found"
+                });
+            }
+
+            if (request.restaurant.toString() !== req.user.id) {
+                return res.status(403).json({
+                    message: "You can only schedule pickups for your own requests"
+                });
+            }
+
+            if (request.status !== "approved") {
+                return res.status(400).json({
+                    message: "Only approved requests can be scheduled"
+                });
+            }
+
+            request.pickupDate = date;
+            request.pickupTime = pickupTime;
+            request.pickupNotes = pickupNotes || "";
+
+            await request.save();
+
+            const io = req.app.get("io");
+
+            io.to(request.ngo.toString()).emit(
+                "donation-request-status",
+                {
+                    message: "A pickup has been scheduled for your donation request.",
+                    status: request.status,
+                    pickupDate: request.pickupDate,
+                    pickupTime: request.pickupTime,
+                    pickupNotes: request.pickupNotes
+                }
+            );
+
+            return res.status(200).json({
+                message: "Pickup scheduled successfully",
+                request
+            });
+        } catch (error) {
+            return res.status(500).json({
+                message: "Failed to schedule pickup",
+                error: error.message
+            });
+        }
+    }
+);
+
+
+router.get(
+    "/:id/contact",
+    authMiddleware,
+    roleMiddleware("ngo"),
+    async (req, res) => {
+        try {
+            const request = await DonationRequest.findOne({
+                _id: req.params.id,
+                ngo: req.user.id
+            }).populate(
+                "restaurant",
+                "name phone email"
+            );
+
+            if (!request) {
+                return res.status(404).json({
+                    message: "Donation request not found"
+                });
+            }
+
+            if (request.status !== "approved") {
+                return res.status(403).json({
+                    message:
+                        "Contact details are available only after approval"
+                });
+            }
+
+            if (!request.restaurant) {
+                return res.status(404).json({
+                    message: "Restaurant details not found"
+                });
+            }
+
+            res.status(200).json({
+                contact: {
+                    name: request.restaurant.name,
+                    phone: request.restaurant.phone,
+                    email: request.restaurant.email
+                }
+            });
+
+        } catch (error) {
+            res.status(500).json({
+                message: "Failed to fetch contact details",
                 error: error.message
             });
         }

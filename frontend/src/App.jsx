@@ -11,7 +11,7 @@ function App() {
   
 
 useEffect(() => {
-    const socket = io("http://localhost:5000");
+    const socket = io("https://foodbridge-jxil.onrender.com");
 
     const token = sessionStorage.getItem("token");
 
@@ -121,7 +121,7 @@ const [showRestaurantNotifications, setShowRestaurantNotifications] = useState(f
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/auth/login",
+                "https://foodbridge-jxil.onrender.com/api/auth/login",
                 {
                     method: "POST",
                     headers: {
@@ -184,7 +184,7 @@ setShowAdminNotifications(false);
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/auth/register",
+                "https://foodbridge-jxil.onrender.com/api/auth/register",
                 {
                     method: "POST",
                     headers: {
@@ -230,8 +230,8 @@ body: JSON.stringify({
         const token = sessionStorage.getItem("token");
 
         const url = editingFoodId
-            ? `http://localhost:5000/api/food/${editingFoodId}`
-            : "http://localhost:5000/api/food";
+            ? `https://foodbridge-jxil.onrender.com/api/food/${editingFoodId}`
+            : "https://foodbridge-jxil.onrender.com/api/food";
 
         const method = editingFoodId ? "PUT" : "POST";
 
@@ -293,7 +293,7 @@ body: JSON.stringify({
             const token = sessionStorage.getItem("token");
 
             const response = await fetch(
-                "http://localhost:5000/api/food",
+                "https://foodbridge-jxil.onrender.com/api/food",
                 {
                     method: "GET",
                     headers: {
@@ -338,7 +338,7 @@ const handleDeleteFood = async (foodId) => {
         }
 
         const response = await fetch(
-            `http://localhost:5000/api/food/${foodId}`,
+            `https://foodbridge-jxil.onrender.com/api/food/${foodId}`,
             {
                 method: "DELETE",
                 headers: {
@@ -377,7 +377,7 @@ const handleDeleteFood = async (foodId) => {
             const token = sessionStorage.getItem("token");
 
             const response = await fetch(
-                "http://localhost:5000/api/donation-requests/restaurant",
+                "https://foodbridge-jxil.onrender.com/api/donation-requests/restaurant",
                 {
                     method: "GET",
                     headers: {
@@ -412,7 +412,7 @@ const handleDeleteFood = async (foodId) => {
             const token = sessionStorage.getItem("token");
 
             const response = await fetch(
-                `http://localhost:5000/api/donation-requests/${requestId}/status`,
+                `https://foodbridge-jxil.onrender.com/api/donation-requests/${requestId}/status`,
                 {
                     method: "PUT",
                     headers: {
@@ -456,7 +456,7 @@ const handleSchedulePickup = async (requestId) => {
         const token = sessionStorage.getItem("token");
 
         const response = await fetch(
-            `http://localhost:5000/api/donation-requests/${requestId}/schedule-pickup`,
+            `https://foodbridge-jxil.onrender.com/api/donation-requests/${requestId}/schedule-pickup`,
             {
                 method: "PUT",
                 headers: {
@@ -497,7 +497,7 @@ const handleSchedulePickup = async (requestId) => {
             const token = sessionStorage.getItem("token");
 
             const response = await fetch(
-                "http://localhost:5000/api/food",
+                "https://foodbridge-jxil.onrender.com/api/food",
                 {
                     method: "GET",
                     headers: {
@@ -531,7 +531,7 @@ const handleSchedulePickup = async (requestId) => {
             const token = sessionStorage.getItem("token");
 
             const response = await fetch(
-                "http://localhost:5000/api/donation-requests",
+                "https://foodbridge-jxil.onrender.com/api/donation-requests",
                 {
                     method: "POST",
                     headers: {
@@ -565,7 +565,7 @@ const handleGetNgoContact = async (requestId) => {
         const token = sessionStorage.getItem("token");
 
         const response = await fetch(
-            `http://localhost:5000/api/donation-requests/${requestId}/contact`,
+            `https://foodbridge-jxil.onrender.com/api/donation-requests/${requestId}/contact`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -597,7 +597,7 @@ const handleGetNgoContact = async (requestId) => {
             const token = sessionStorage.getItem("token");
 
             const response = await fetch(
-                "http://localhost:5000/api/donation-requests/my-requests",
+                "https://foodbridge-jxil.onrender.com/api/donation-requests/my-requests",
                 {
                     method: "GET",
                     headers: {
@@ -627,7 +627,7 @@ const handleGetNgoContact = async (requestId) => {
             const token = sessionStorage.getItem("token");
 
             const response = await fetch(
-                "http://localhost:5000/api/admin/restaurants",
+                "https://foodbridge-jxil.onrender.com/api/admin/restaurants",
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -658,7 +658,7 @@ const handleGetNgoContact = async (requestId) => {
             const token = sessionStorage.getItem("token");
 
             const response = await fetch(
-                "http://localhost:5000/api/admin/ngos",
+                "https://foodbridge-jxil.onrender.com/api/admin/ngos",
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -689,7 +689,7 @@ const handleGetNgoContact = async (requestId) => {
             const token = sessionStorage.getItem("token");
 
             const response = await fetch(
-                "http://localhost:5000/api/admin/food",
+                "https://foodbridge-jxil.onrender.com/api/admin/food",
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -720,7 +720,7 @@ const handleGetNgoContact = async (requestId) => {
             const token = sessionStorage.getItem("token");
 
             const response = await fetch(
-                "http://localhost:5000/api/admin/donation-requests",
+                "https://foodbridge-jxil.onrender.com/api/admin/donation-requests",
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,

@@ -40,7 +40,7 @@ useEffect(() => {
 }, [loggedIn]);
     const [role, setRole] = useState("");
     const [userName, setUserName] = useState("");
-    const [showHome, setShowHome] = useState(false);
+   const [showHome, setShowHome] = useState(true);
 
     // Registration
     const [showRegister, setShowRegister] = useState(false);
@@ -3021,6 +3021,250 @@ if (loggedIn && role === "admin") {
         </div>
     );
 }
+
+    // HOME PAGE
+    if (showHome) {
+        return (
+            <div className="home-page">
+                <nav className="navbar">
+                    <div className="navbar-logo">
+                        🍴 FoodBridge
+                    </div>
+
+                    <div className="navbar-links">
+                        <button onClick={() => setShowHome(false)}>
+                            Login
+                        </button>
+                        <button
+                            onClick={() => {
+                                setShowHome(false);
+                                setShowRegister(true);
+                            }}
+                        >
+                            Register
+                        </button>
+                    </div>
+                </nav>
+
+                <section className="home-hero">
+                    <div className="hero-text">
+                        <span className="hero-tag">
+                            🌱 GOOD FOOD. LESS WASTE.
+                        </span>
+
+                        <h1>
+                            Share Food.
+                            <br />
+                            <span>Spread Hope.</span>
+                        </h1>
+
+                        <p>
+                            Every meal deserves a purpose. FoodBridge
+                            connects restaurants with surplus food to
+                            NGOs who can get it to people in need.
+                            Together, we can reduce food waste and
+                            make a meaningful difference.
+                        </p>
+
+                        <div className="home-buttons">
+                            <button
+                                onClick={() => {
+                                    setShowHome(false);
+                                    setShowRegister(true);
+                                }}
+                            >
+                                Get Started →
+                            </button>
+
+                            <button
+                                className="secondary-home-button"
+                                onClick={() => setShowHome(false)}
+                            >
+                                Login
+                            </button>
+                        </div>
+
+                        <div className="hero-note">
+                            ♻️ Reduce waste&nbsp; · &nbsp;❤️ Feed communities
+                        </div>
+                    </div>
+
+                    <div className="hero-image">
+                        <img
+                            src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1100&q=85"
+                            alt="Fresh, nutritious food ready to be shared"
+                        />
+                        <div className="image-caption">
+                            <span className="caption-icon">🥗</span>
+                            <div>
+                                <strong>Good food, shared with purpose</strong>
+                                <p>Small actions. Meaningful impact.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section className="home-mission">
+                    <div className="mission-image">
+                        <img
+                            src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=900&q=85"
+                            alt="Volunteers helping distribute food"
+                            loading="lazy"
+                        />
+                    </div>
+
+                    <div className="mission-text">
+                        <span className="section-tag">OUR MISSION</span>
+                        <h2>
+                            Turning surplus food into
+                            <span> shared hope.</span>
+                        </h2>
+                        <p>
+                            Restaurants can have perfectly good food
+                            left over at the end of the day, while
+                            communities still need nutritious meals.
+                            FoodBridge helps bring these two sides
+                            together through a simple digital platform.
+                        </p>
+                        <p>
+                            Our goal is to make food redistribution
+                            easier, encourage responsible food use,
+                            and help NGOs connect with nearby food donors.
+                        </p>
+                        <button
+                            className="text-link-button"
+                            onClick={() => {
+                                setShowHome(false);
+                                setShowRegister(true);
+                            }}
+                        >
+                            Join FoodBridge →
+                        </button>
+                    </div>
+                </section>
+
+                <section className="home-how">
+                    <div className="section-heading">
+                        <span className="section-tag">HOW IT WORKS</span>
+                        <h2>Three simple steps. One shared mission.</h2>
+                        <p>
+                            A simple way for restaurants and NGOs to work
+                            together to make surplus food useful.
+                        </p>
+                    </div>
+
+                    <div className="how-cards">
+                        <div className="how-card">
+                            <div className="step-icon">🍱</div>
+                            <span className="step-number">STEP 01</span>
+                            <h3>Restaurants Share</h3>
+                            <p>
+                                Restaurants list available surplus food,
+                                including the quantity, description,
+                                and expiry details.
+                            </p>
+                        </div>
+
+                        <div className="how-card">
+                            <div className="step-icon">🤝</div>
+                            <span className="step-number">STEP 02</span>
+                            <h3>NGOs Request</h3>
+                            <p>
+                                NGOs discover available food and request
+                                suitable donations for the communities
+                                they support.
+                            </p>
+                        </div>
+
+                        <div className="how-card">
+                            <div className="step-icon">🚚</div>
+                            <span className="step-number">STEP 03</span>
+                            <h3>Coordinate Pickup</h3>
+                            <p>
+                                Restaurants and NGOs coordinate approval
+                                and pickup so suitable food can reach
+                                people who need it.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <section className="home-impact">
+                    <div className="impact-image">
+                        <img
+                            src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1000&q=85"
+                            alt="Community members benefiting from support"
+                            loading="lazy"
+                        />
+                    </div>
+
+                    <div className="impact-text">
+                        <span className="section-tag">WHY FOODB​RIDGE?</span>
+                        <h2>Food is too valuable to go to waste.</h2>
+                        <p>
+                            FoodBridge provides a shared space for food
+                            donors and NGOs to coordinate donations.
+                            By making available food easier to discover
+                            and request, we aim to support a more
+                            responsible and caring food system.
+                        </p>
+
+                        <ul>
+                            <li>✓ Make surplus food easier to discover</li>
+                            <li>✓ Connect restaurants with NGOs</li>
+                            <li>✓ Coordinate requests and pickups</li>
+                            <li>✓ Encourage timely, responsible donations</li>
+                        </ul>
+
+                        <button
+                            onClick={() => {
+                                setShowHome(false);
+                                setShowRegister(true);
+                            }}
+                        >
+                            Become a FoodBridge Member →
+                        </button>
+                    </div>
+                </section>
+
+                <section className="home-cta">
+                    <span>💚 BE PART OF THE CHANGE</span>
+                    <h2>One connection can make a difference.</h2>
+                    <p>
+                        Join restaurants and NGOs working toward a world
+                        where good food finds the people who need it.
+                    </p>
+                    <button
+                        onClick={() => {
+                            setShowHome(false);
+                            setShowRegister(true);
+                        }}
+                    >
+                        Create Your Account →
+                    </button>
+                </section>
+
+                <footer className="home-footer">
+                    <div className="footer-brand">🍴 FoodBridge</div>
+                    <p>Connecting surplus food with communities in need.</p>
+                    <div className="footer-links">
+                        <button onClick={() => setShowHome(false)}>
+                            Login
+                        </button>
+                        <button
+                            onClick={() => {
+                                setShowHome(false);
+                                setShowRegister(true);
+                            }}
+                        >
+                            Register
+                        </button>
+                    </div>
+                    <small>FoodBridge </small>
+                </footer>
+            </div>
+        );
+    }
 
     // REGISTER PAGE
     if (showRegister) {
